@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | Face Attendance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container { width: 90%; max-width: 1000px; text-align: center; }
+
+        .tab-container {
+            margin-bottom: 2rem;
+            display: inline-flex;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px;
+            border-radius: 12px;
+        }
+
+        .tab-btn {
+            padding: 10px 25px;
+            cursor: pointer;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: white;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        /* Active Button Style */
+        .active-btn {
+            background: var(--primary-color) !important;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .main-card {
+            background: var(--card-bg);
+            color: var(--text-main);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .video-container {
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 4px solid #e2e8f0;
+            background: #000;
+        }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; text-align: left; }
+        .input-group { margin-bottom: 1rem; }
+        .input-group label { display: block; font-size: 0.85rem; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-muted); }
+        .input-group input { width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
+        .btn-action { width: 100%; padding: 1rem; background: var(--primary-color); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 1rem; display: block; text-decoration: none; text-align: center;}
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Attendance Dashboard</h1>
+        
+        <div class="tab-container">
+            <button id="nav-att" class="tab-btn active-btn" onclick="openAttendance()">Mark Attendance</button>
+            <button id="nav-reg" class="tab-btn" onclick="openRegistration()">New Registration</button>
+        </div>
+
+        <div id="attendance-section" class="main-card">
+            <h2 style="margin-top:0">Live Face Recognition</h2>
+            <div class="video-container">
+                <img src="{{ url_for('video_feed') }}" width="100%" alt="Camera Stream">
+            </div>
+           
+            <a href="/view_attendance" class="btn btn-info" style="margin-top: 20px;">View Full Attendance Logs →</a>
+        </div>
+
+        <div id="registration-section" class="main-card" style="display: none;">
+            <h2 style="margin-top:0">Student Registration</h2>
+            <form action="/register" method="POST" onsubmit="handleCapture()">
+                <div class="form-grid">
+                    <div class="input-group"><label>Full Name</label><input type="text" name="name" required></div>
+                    <div class="input-group"><label>Roll Number (Only Numbers)</label><input type="number" name="roll" placeholder="e.g. 12" required>
+</div>
+                    <div class="input-group"><label>Course</label><input type="text" name="course" required></div>
+                    <div class="input-group"><label>Year</label><input type="text" name="year" required></div>
+                </div>
+                <button type="submit" class="btn-action">Start Face Capture & Save</button>
+            </form>
+
+        </div>
+    </div>
+
+    <script>
+        // Tab switching logic
+        function openAttendance() {
+            document.getElementById('attendance-section').style.display = 'block';
+            document.getElementById('registration-section').style.display = 'none';
+            
+            document.getElementById('nav-att').classList.add('active-btn');
+            document.getElementById('nav-reg').classList.remove('active-btn');
+        }
+
+        function openRegistration() {
+            document.getElementById('attendance-section').style.display = 'none';
+            document.getElementById('registration-section').style.display = 'block';
+            
+            document.getElementById('nav-reg').classList.add('active-btn');
+            document.getElementById('nav-att').classList.remove('active-btn');
+        }
+
+        // Auto-switch after Registration logic
+        function handleCapture() {
+            localStorage.setItem('redirect_to_camera', 'true');
+        }
+
+        window.onload = function() {
+            if (localStorage.getItem('redirect_to_camera') === 'true') {
+                localStorage.removeItem('redirect_to_camera');
+                openAttendance();
+            }
+        };
+    </script>
+</body>
+</html>
